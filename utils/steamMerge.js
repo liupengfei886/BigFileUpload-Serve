@@ -19,19 +19,11 @@ const streamMerge = (inputPathList, outputPath, chunkSize = 2 * 1024 * 1024) => 
   const output = fs.createWriteStream(outputPath, {
     encoding: null
   });
-  // console.log('inputPathList', inputPathList)
   return Promise.mapSeries(inputPathList, function (item) {
-    // console.log('item', item)
     return new Promise(function (resolve, reject) {
-      const input = fs.createReadStream(item, {
-        encoding: null
+      const inputStream = fs.createReadStream(item, {
+        highWaterMark: chunkSize
       });
-
-      const inputStream = new stream.Readable({
-        // equivalent to controlling the size of a bucket
-        highWaterMark: chunkSize // the size of each on data of the control flow, the default is 16kb
-      }).wrap(input)
-
       // pipeline data flow
       inputStream.pipe(output, {
         end: false
